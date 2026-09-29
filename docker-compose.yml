@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # ---------------------------------------------------------
+  # HINDSIGHT — Agent Memory Engine
+  # ---------------------------------------------------------
+  hindsight:
+    build:
+      context: ./hindsight
+      dockerfile: docker/Dockerfile
+    container_name: incidentos-hindsight
+    ports:
+      - "8888:8888"
+    environment:
+      - HINDSIGHT_PORT=8888
+      - HINDSIGHT_API_KEY=dev-key
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------------------------------------------------------
+  # ROCKETRIDE — Agent Pipeline Orchestration Server
+  # ---------------------------------------------------------
+  rocketride:
+    build:
+      context: ./rocketride-server
+      dockerfile: docker/Dockerfile
+    container_name: incidentos-rocketride
+    ports:
+      - "5565:5565"
+    environment:
+      - ROCKETRIDE_PORT=5565
+      - ROCKETRIDE_API_KEY=dev-key
+    restart: unless-stopped
+
+  # ---------------------------------------------------------
+  # HYDRADB — OpenCypher Graph Database
+  # ---------------------------------------------------------
+  hydradb:
+    build:
+      context: ./hydradb
+      dockerfile: Dockerfile
+    container_name: incidentos-hydradb
+    ports:
+      - "9090:9090"
+      - "7687:7687"
+    environment:
+      - CLOUD_PROVIDER=local
+      - LOCAL_PATH=/data/store
+      - GRAPH_NAMESPACE=default
+      - GRAPH_ID=default
+      - GRAPH_CELL_ID=cell-0
+      - GRAPH_CELLS=cell-0
+      - GRAPH_NODE_ID=node-0
+      - GRAPH_ALLOW_PLAINTEXT=true
+      - GRAPH_AUTH_TOKEN=local-development-token-32-bytes
+    restart: unless-stopped
+
+  # ---------------------------------------------------------
+  # INCIDENTOS BACKEND — FastAPI Agent Orchestrator
+  # ---------------------------------------------------------
+  incidentos-backend:
+    build:
+      context: ./incidentos/backend
+      dockerfile: Dockerfile
+    container_name: incidentos-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - HINDSIGHT_BASE_URL=http://hindsight:8888
+      - HINDSIGHT_API_KEY=dev-key
+      - ROCKETRIDE_BASE_URL=http://rocketride:5565
+      - ROCKETRIDE_API_KEY=dev-key
+      - HYDRADB_URL=http://hydradb:9090
+      - HYDRADB_AUTH_TOKEN=local-development-token-32-bytes
+    depends_on:
+      - hindsight
+      - rocketride
+      - hydradb
+    restart: unless-stopped
+
+  # ---------------------------------------------------------
+  # INCIDENTOS FRONTEND — Next.js Incident Command Center
+  # ---------------------------------------------------------
+  incidentos-frontend:
+    build:
+      context: ./incidentos/frontend
+      dockerfile: Dockerfile
+    container_name: incidentos-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+    depends_on:
+      - incidentos-backend
+    restart: unless-stopped

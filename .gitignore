@@ -1,0 +1,64 @@
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account.json
+secrets/
+secrets.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+ENV/
+env/
+
+# Node.js & Frontend Build Outputs
+node_modules/
+.next/
+dist/
+build/
+out/
+.turbo/
+coverage/
+
+# IDE & Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# System & OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs & Temporary Files
+*.log
+logs/
+tmp/
+temp/
+.cache/
+*.tmp
+*.bak
+snapshot_*.patch
+
+# Databases & Local State Storage
+*.db
+*.sqlite
+*.sqlite3
+docker-data/
+data/
+volumes/
+hindsight-data/
+hydradb-data/

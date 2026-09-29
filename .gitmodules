@@ -1,0 +1,9 @@
+[submodule "hindsight"]
+	path = hindsight
+	url = https://github.com/saipraveen-k/hindsight.git
+[submodule "rocketride-server"]
+	path = rocketride-server
+	url = https://github.com/saipraveen-k/rocketride-server.git
+[submodule "hydradb"]
+	path = hydradb
+	url = https://github.com/saipraveen-k/hydradb.git
